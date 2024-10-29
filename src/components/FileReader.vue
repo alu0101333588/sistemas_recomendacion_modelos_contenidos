@@ -20,7 +20,7 @@ export default {
     },
     fileType: {
       type: String,
-      default: 'documents' // It can be 'documents', 'stopwords' or 'lemmatize'.
+      default: 'documents' // It can be 'documents', 'stopwords' or 'substitution'.
     }
   },
   methods: {
@@ -29,11 +29,11 @@ export default {
       const reader = new FileReader();
 
       reader.onload = e => {
-        // Emite el evento con el nombre según el tipo de archivo
+        // Emits the event based on the prop fileType passed to the component (documents, stopwords, substitution)
         this.$emit(`${this.fileType}Load`, e.target.result);
       };
 
-      // Leer el archivo como texto (puedes ajustar según el tipo)
+      // Read the file as a string
       reader.readAsText(file);
     }
   }
