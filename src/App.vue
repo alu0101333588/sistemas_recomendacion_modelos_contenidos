@@ -26,7 +26,6 @@ This is the main component that handles the file upload and the algorithm execut
 <script>
 import FileReader from './components/FileReader.vue';
 import DisplayResults from './components/DisplayResults.vue';
-
 export default {
   name: 'App',
   components: {
@@ -37,6 +36,7 @@ export default {
     return {
       showResults: false,
       filesFlag: false,
+      documentsList: [],
       documentsFileContent: '',
       stopwordsFileContent: '',
       substitutionFileContent: ''
@@ -45,15 +45,15 @@ export default {
   methods: {
     documentLoadHandler(content) {
       this.documentsFileContent = content;
-      console.log("[LOAD]: Received event Documents file content: ", content);
+      // console.log("[LOAD]: Received event Documents file content: ", content);
     },
     stopwordsLoadHandler(content) {
       this.stopwordsFileContent = content;
-      console.log("[LOAD]: Received event Stopwords file content: ", content);
+      // console.log("[LOAD]: Received event Stopwords file content: ", content);
     },
     substitutionLoadHandler(content) {
       this.substitutionFileContent = content;
-      console.log("[LOAD]: Received event Substitution file content: ", content);
+      // console.log("[LOAD]: Received event Substitution file content: ", content);
     },
     executeAlgorithm() {
       if (!this.documentsFileContent || !this.stopwordsFileContent || !this.substitutionFileContent) {
@@ -63,10 +63,10 @@ export default {
       }
       this.showResults = true;
       this.filesFlag = false;
-      console.log("[EXE]: Execute algorithm with the following files content: ");
-      console.log("[EXE]: Documents file content: ", this.documentsFileContent);
-      console.log("[EXE]: Stopwords file content: ", this.stopwordsFileContent);
-      console.log("[EXE]: Substitution words file content: ", this.substitutionFileContent);
+      // console.log("[EXE]: Execute algorithm with the following files content: ");
+      // console.log("[EXE]: Documents file content: ", this.documentsFileContent);
+      // console.log("[EXE]: Stopwords file content: ", this.stopwordsFileContent);
+      // console.log("[EXE]: Substitution words file content: ", this.substitutionFileContent);
     },
     resetHandler() {
       this.showResults = false;
