@@ -36,7 +36,6 @@ export default {
     return {
       showResults: false,
       filesFlag: false,
-      documentsList: [],
       documentsFileContent: '',
       stopwordsFileContent: '',
       substitutionFileContent: ''
