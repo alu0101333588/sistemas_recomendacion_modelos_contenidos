@@ -78,16 +78,16 @@ export default {
       console.log('Executing algorithm');
       // Step 0 (build list of documents): ...
       this.documentsLists = this.separateDocuments(this.documentsFileContent);
-      console.log('Documents list: ', this.documentsLists);
+      // console.log('Documents list: ', this.documentsLists);
       // Step 1 (upper to lower, remove punctuation, numbers and whitespaces): ...
       this.documentsLists = this.formatDocument(this.documentsLists);
-      console.log('Documents list after format: ', this.documentsLists);
+      // console.log('Documents list after format: ', this.documentsLists);
       // Step 2 (apply stop words changes): ...
       this.documentsLists = this.stopWords(this.documentsLists, this.stopwordsFileContent);
-      console.log('Documents list after stop words: ', this.documentsLists);
+      // console.log('Documents list after stop words: ', this.documentsLists);
       // Step 3 (apply the lemmatization ...): ...
       this.documentsLists = this.lemmatize(this.documentsLists, this.substitutionFileContent);
-      console.log('Documents list after lemmatization: ', this.documentsLists);
+      // console.log('Documents list after lemmatization: ', this.documentsLists);
       this.calculateDocumentTermMatrix();
       this.calculateDF();
       this.calculateTF();
@@ -95,7 +95,7 @@ export default {
       this.calculateLength();
       this.calculateNormalizeMatrix();
       this.displayMatrixFlag = true;
-      console.log('Algorithm executed');
+      // console.log('Algorithm executed');
       //this.printResults();
     },
     stopWords,
@@ -104,7 +104,7 @@ export default {
     separateDocuments,
   // Método para calcular la matriz término-documento
   calculateDocumentTermMatrix() {
-    console.log('Calculando matriz término-documento');
+    // console.log('Calculando matriz término-documento');
     
     // Create a list of all the words in the documents without duplicates. This will be used as a reference to build the document-term matrix:
     // The allWords will be the upper side of the matrix (the terms). The documents will be the left side of the matrix (We'll work by rows).
@@ -114,11 +114,11 @@ export default {
     
     // Eliminar duplicados
     this.allWords = [...new Set(this.allWords)];
-    console.log('All words: ', this.allWords);
+    // console.log('All words: ', this.allWords);
 
     for (let j = 0; j < this.documentsLists.length; j++) {
       // We work on a row variable that will be the length of the allWords array, and will store the number of times each word appears in the document
-      let row = [];
+      let row = 0;
       let rowDataMatrix = [];
       for (let i = 0; i < this.allWords.length; i++) {
         // Count the number of times the word appears in the document and then store it in the row (wordCount locally)
@@ -137,7 +137,7 @@ export default {
     }
     console.log('Matriz término-documento: ', this.documentTermMatrix);
     console.log('Tamaño matriz: ', this.documentTermMatrix.length);
-    console.log('Data matrix: ', this.dataMatrix);
+    // console.log('Data matrix: ', this.dataMatrix);
   },
 
   calculateDF() {
@@ -173,7 +173,7 @@ export default {
 
         for (let i = 0; i < this.allWords.length; i++) {
             let frequency = this.documentTermMatrix[j][i];
-            console.log('Frecuencia: ', frequency);
+            // console.log('Frecuencia: ', frequency);
             let tf = frequency > 0 ? 1 + Math.log10(frequency) : 0;
             tfRow.push(tf);
         }
@@ -187,9 +187,11 @@ export default {
   calculateIDF() {
     let idf = [];
     for (let i = 0; i < this.allWords.length; i++) {
-      console.log('DF: ', this.dfMatrix[i]);
+      // console.log('DF: ', this.dfMatrix[i]);
       let dfWord = this.dfMatrix[i];
-      let idfValue = Math.log10(this.documentsLists.length / dfWord);
+      let value = this.documentsLists.length / dfWord;
+      // let idfValue = value > 0 ? Math.log10(value) : 0;
+      let idfValue = Math.log10(value);
       idf.push(idfValue);
     }
     console.log('IDF Matrix: ', idf);
@@ -205,7 +207,7 @@ export default {
       }
       length.push(Math.sqrt(sum));
     }
-    console.log('Length: ', length);
+    // console.log('Length: ', length);
     this.lengthVector = length;    
   },
   calculateNormalizeMatrix() {
@@ -213,12 +215,12 @@ export default {
     for (let j = 0; j < this.documentTermMatrix.length; j++) {
       let row = [];
       for (let i = 0; i < this.allWords.length; i++) {
-        console.log('TF: ', this.tfMatrix[j][i], 'Length: ', this.lengthVector[i]);
+        // console.log('TF: ', this.tfMatrix[j][i], 'Length: ', this.lengthVector[i]);
         row.push(this.tfMatrix[j][i] / this.lengthVector[i]);
       }
       normalizeVector.push(row);
     }
-    console.log('Normalice Vector: ', normalizeVector);
+    // console.log('Normalice Vector: ', normalizeVector);
     this.normalizeMatrix = normalizeVector;
 
   },
@@ -232,8 +234,6 @@ export default {
     results += "\t";
     results += this.allWords.join(' | ');
     results += "\n";
-    // this.dataMatrix.map(row => row.map(cell => results += cell.join(' | ') + '\n'));
-    // results += this.documentTermMatrix.map(row => row.join(' | ')).join('\n');
     console.log('Tamaño matriz: ', this.documentTermMatrix.length);
     this.documentTermMatrix.forEach((row, index) => {
       results += `Documento ${index + 1}: ${row.join(' | ')}\n`;
@@ -253,7 +253,7 @@ export default {
     results += this.lengthVector.join(' | ');
     results += "\n\n";
     results += "Normalice Matrix: \n";
-    results += this.normaliceMatrix.map(row => row.join(' | ')).join('\n');
+    results += this.normalizeMatrix.map(row => row.join(' | ')).join('\n');
     console.log(results);
     // Crear un blob con el contenido de la matriz de similitud
     const blob = new Blob([results], { type: 'text/plain' });
