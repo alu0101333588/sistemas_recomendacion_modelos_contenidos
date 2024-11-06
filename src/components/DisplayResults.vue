@@ -4,9 +4,11 @@
 <template>
   <div class="display-results">
     <h1>Display Results</h1>
-    <button @click="$emit('resetApp')">Reset</button>
-    <button @click="executeAlgorithm">Realizar calculos</button>
+    <button @click="reset">Reset</button>
     <button @click="printResults">Imprimir resultados</button>
+    <MatrixDisplay v-if="documentTermMatrix.length > 0" matrixName="Document-Term Matrix" :matrix="documentTermMatrix" :words="allWords"/>
+    <MatrixDisplay v-if="tfMatrix.length > 0" matrixName="TF Matrix" :matrix="tfMatrix" :words="allWords" />
+    <MatrixDisplay v-if="normalizeMatrix.length > 0" matrixName="Normalized Matrix" :matrix="normalizeMatrix" :words="allWords" />
     <!-- <DisplayMatrix v-if="displayMatrixFlag" :dataMatrix="dataMatrix" :documentTermMatrix="documentTermMatrix" :dfMatrix="dfMatrix" :tfMatrix="tfMatrix" :idfMatrix="idfMatrix" :lengthVector="lengthVector" :normalizeMatrix="normalizeMatrix" /> -->
   </div>
 </template>
@@ -16,11 +18,11 @@ import { separateDocuments } from '@/functions/formatDocument';
 import { stopWords } from '@/functions/formatDocument';
 import { formatDocument } from '@/functions/formatDocument';
 import { lemmatize } from '@/functions/formatDocument';
-// import  DisplayMatrix  from  '@/components/DisplayMatrix';
+import  MatrixDisplay  from  '@/components/DisplayMatrix';
 export default {
-  // components: {
-  //   DisplayMatrix
-  // },
+  components: {
+    MatrixDisplay
+  },
   data() {
     return { documentsLists: [],
     documentTermMatrix: [],
@@ -31,6 +33,7 @@ export default {
     idfMatrix: [],
     lengthVector: [],
     normalizeMatrix: [],
+    similarityBetweenDocuments: [],
     displayMatrixFlag: false
     };
   },
@@ -49,7 +52,6 @@ export default {
     }
   },
   mounted() {
-    // console.log('DisplayResults mounted');
     // Call the algorithm
     this.executeAlgorithm();
   },
@@ -58,22 +60,38 @@ export default {
   // to force all files to be uploaded at least once before the component is mounted.
   watch: {
     documentsFileContent() {
-      // console.log('[CHANGE]: Documents file content changed');
-      // Call the algorithm
-      this.executeAlgorithm
+      this.resetData();
+      this.executeAlgorithm();
     },
     stopwordsFileContent() {
-      // console.log('[CHANGE]: Stopwords file content changed');
-      // Call the algorithm
+      this.resetData();
       this.executeAlgorithm();
     },
     substitutionFileContent() {
-      // console.log('[CHANGE]: Substitution file content changed');
-      // Call the algorithm
+      this.resetData();
       this.executeAlgorithm();
     }
   },
   methods: {
+    reset() {
+      this.resetData();
+      // reset the displayMatrixFlag to false
+      this.displayMatrixFlag = false;
+      // emit the reset event to the parent component
+      this.$emit('resetApp');
+    },
+    resetData() {
+      this.documentsLists = [];
+      this.documentTermMatrix = [];
+      this.dataMatrix = [];
+      this.allWords = [];
+      this.dfMatrix = [];
+      this.tfMatrix = [];
+      this.idfMatrix = [];
+      this.lengthVector = [];
+      this.normalizeMatrix = [];
+      this.similarityBetweenDocuments = [];
+    },
     executeAlgorithm() {
       console.log('Executing algorithm');
       // Step 0 (build list of documents): ...
@@ -96,6 +114,8 @@ export default {
       this.calculateLength();
       // Step 9 (calculate the normalized matrix): ...
       this.calculateNormalizeMatrix();
+      // Step 10 (calculate the similarity between documents): ...
+      this.similarityfunction();
       this.displayMatrixFlag = true;
       //this.printResults();
     },
@@ -132,146 +152,152 @@ export default {
       }
     },
 
-  calculateDF() {
-    // Calculate the Document Frequency (DF) for each word in the allWords array.
-    let df = [];
-    // For each word in the allWords array, we count the number of documents that contain the word.
-    for (let i = 0; i < this.allWords.length; i++) {
-      // On each document, first reset the count to 0.
-      let count = 0;
-      // For each document, check if the word appears in the document (an appearance occurs whenever the number is higher than zero).
-      // If it does, increment the count.
-      for (let j = 0; j < this.documentTermMatrix.length; j++) {
-        console.log('Palabra: ', this.allWords[i], 'Documento: ', j, 'Frecuencia: ', this.documentTermMatrix[j][i]);
-        if (this.documentTermMatrix[j][i] > 0) {
-          console.log('Palabra: ', this.allWords[i], 'Documento: ', j, 'Frecuencia: ', this.documentTermMatrix[j][i]);
-          count++;
+    calculateDF() {
+      // Calculate the Document Frequency (DF) for each word in the allWords array.
+      let df = [];
+      // For each word in the allWords array, we count the number of documents that contain the word.
+      for (let i = 0; i < this.allWords.length; i++) {
+        // On each document, first reset the count to 0.
+        let count = 0;
+        // For each document, check if the word appears in the document (an appearance occurs whenever the number is higher than zero).
+        // If it does, increment the count.
+        for (let j = 0; j < this.documentTermMatrix.length; j++) {
+          if (this.documentTermMatrix[j][i] > 0) {
+            count++;
+          }
         }
+        // Once finished with the document, push the count to the df array.
+        df.push(count);
       }
-      // Once finished with the document, push the count to the df array.
-      df.push(count);
-    }
-    this.dfMatrix = df;
-  },
+      this.dfMatrix = df;
+    },
   
-  calculateTF() {
-
-    let tf = []; 
-
-    for (let j = 0; j < this.documentTermMatrix.length; j++) {
+    calculateTF() {
+      let tf = []; 
+      for (let j = 0; j < this.documentTermMatrix.length; j++) {
         let tfRow = []; 
-
         for (let i = 0; i < this.allWords.length; i++) {
-            let frequency = this.documentTermMatrix[j][i];
-            let tf = frequency > 0 ? 1 + Math.log10(frequency) : 0;
-            tfRow.push(tf);
+          let frequency = this.documentTermMatrix[j][i];
+          let tf = frequency > 0 ? 1 + Math.log10(frequency) : 0;
+          tfRow.push(tf);
         }
-
         tf.push(tfRow); 
-    }
-
-    console.log('TF Matrix: ', tf);
-    this.tfMatrix = tf;
-  },
-  calculateIDF() {
-    let idf = [];
-    for (let i = 0; i < this.allWords.length; i++) {
-      let dfWord = this.dfMatrix[i];
-      let value = this.documentsLists.length / dfWord;
-      let idfValue = Math.log10(value);
-      idf.push(idfValue);
-    }
-    console.log('IDF Matrix: ', idf);
-    this.idfMatrix = idf;
-  },
-
-  calculateLength() {
-    let length = [];
-    for (let j = 0; j < this.documentTermMatrix.length; j++) {
-      let sum = 0;
-      for (let i = 0; i < this.allWords.length; i++) {
-        sum += Math.pow(this.tfMatrix[j][i] || 0, 2);
       }
-      length.push(Math.sqrt(sum));
-    }
-    this.lengthVector = length;    
-  },
-  calculateNormalizeMatrix() {
-    let normalizeVector = [];
-    for (let j = 0; j < this.documentTermMatrix.length; j++) {
-      let row = [];
-      for (let i = 0; i < this.allWords.length; i++) {
-        row.push(this.tfMatrix[j][i] / this.lengthVector[j]);
-      }
-      normalizeVector.push(row);
-    }
-    this.normalizeMatrix = normalizeVector;
+      console.log('TF Matrix: ', tf);
+      this.tfMatrix = tf;
+    },
 
-  }, 
-  calculateLengthCheck() {
-    let length = [];
-    for (let j = 0; j < this.normalizeMatrix.length; j++) {
-      let sum = 0;
+    calculateIDF() {
+      let idf = [];
       for (let i = 0; i < this.allWords.length; i++) {
-        sum += Math.pow(this.normalizeMatrix[j][i] || 0, 2);
+        let dfWord = this.dfMatrix[i];
+        let value = this.documentsLists.length / dfWord;
+        let idfValue = Math.log10(value);
+        idf.push(idfValue);
       }
-      length.push(Math.sqrt(sum));
-    }
-    console.log('Length check: ', length);
-  },
-  printResults() {
-    let results = "";
-    // this.documentTermMatrix.forEach((row, index) => {
-    //   const formattedRow = row.map((elemento, i) => 
-    //     String(elemento).padStart(this.allWords[i].length, ' ')  // Alinea cada número según el ancho de la palabra correspondiente
-    //   ).join(' | ');  // Unir las columnas con ' | '
-    //   if (index < 10) {
-    //     results += `Document 0${index + 1}: ${formattedRow}\n`;
-    //   } else {
-    //     results += `Document ${index + 1}: ${formattedRow}\n`;
-    //   }
-    // });
-    console.log('DataMAtrix: ', this.dataMatrix);
-    // NEEDED TO PRINT: INDICE | TÉRMINO | TF | IDF | TF-IDF
-    this.dataMatrix.forEach((row, index) => {
-      results += `Document ${index + 1}:\n`;
-      results += `INDICE | TÉRMINO | TF | IDF | TF-IDF\n`;
-      // | ${this.tfMatrix[index][i] * this.idfMatrix[i]}\n
-      row.forEach((element, i) => {
-        if (element[0].length > 0) {
-          element[0].forEach((position) => {
-            results += ` ${position} | ${element[1]} | ${this.tfMatrix[index][i]} | ${this.idfMatrix[i]} | ${this.tfMatrix[index][i] * this.idfMatrix[i]}\n`;
-          });
+      console.log('IDF Matrix: ', idf);
+      this.idfMatrix = idf;
+    },
+
+    calculateLength() {
+      let length = [];
+      for (let j = 0; j < this.documentTermMatrix.length; j++) {
+        let sum = 0;
+        for (let i = 0; i < this.allWords.length; i++) {
+          sum += Math.pow(this.tfMatrix[j][i] || 0, 2);
         }
-      });
-      results += '\n';
-    });
+        length.push(Math.sqrt(sum));
+      }
+      this.lengthVector = length;    
+    },
 
-    // this.documentTermMatrix.forEach((row, index) => {
-      // results += `Document ${index + 1}:\n`;
-      // results += `INDICE | TÉRMINO | TF | IDF | TF-IDF\n`;
-      // row.forEach((element, i) => {
-        // results += `${this.dataMatrix[i][0]} | ${this.allWords[i]} | ${this.tfMatrix[index][i]} | ${this.idfMatrix[i]} | ${this.tfMatrix[index][i] * this.idfMatrix[i]}\n`;
+    calculateNormalizeMatrix() {
+      let normalizeVector = [];
+      for (let j = 0; j < this.documentTermMatrix.length; j++) {
+        let row = [];
+        for (let i = 0; i < this.allWords.length; i++) {
+          row.push(this.tfMatrix[j][i] / this.lengthVector[j]);
+        }
+        normalizeVector.push(row);
+      }
+      this.normalizeMatrix = normalizeVector;
+    }, 
+
+    calculateLengthCheck() {
+      let length = [];
+      for (let j = 0; j < this.normalizeMatrix.length; j++) {
+        let sum = 0;
+        for (let i = 0; i < this.allWords.length; i++) {
+          sum += Math.pow(this.normalizeMatrix[j][i] || 0, 2);
+        }
+        length.push(Math.sqrt(sum));
+      }
+      console.log('Length check: ', length);
+    },
+    similarityfunction() {
+      let similarity = [];
+      for (let i = 0; i < this.normalizeMatrix.length - 1; i++) {
+        let row = [];
+        for (let j = i + 1; j < this.normalizeMatrix.length; j++) {
+          let sum = 0;
+          for (let k = 0; k < this.allWords.length; k++) {
+            sum += this.normalizeMatrix[i][k] * this.normalizeMatrix[j][k];
+          }
+          row.push(sum);
+        }
+        similarity.push(row);
+      }
+      this.similarityBetweenDocuments = similarity;
+      console.log('Similarity: ', similarity);
+    },
+
+    printResults() {
+      let results = "";
+      // VISUALIZATION OF THE DOCUMENT-TERM MATRIX ACCORDING TO THE CLASSROOM PRESENTATION
+      // this.documentTermMatrix.forEach((row, index) => {
+      //   const formattedRow = row.map((elemento, i) => 
+      //     String(elemento).padStart(this.allWords[i].length, ' ')  // Alinea cada número según el ancho de la palabra correspondiente
+      //   ).join(' | ');  // Unir las columnas con ' | '
+      //   if (index < 10) {
+      //     results += `Document 0${index + 1}: ${formattedRow}\n`;
+      //   } else {
+      //     results += `Document ${index + 1}: ${formattedRow}\n`;
+      //   }
       // });
-    // });
+      let spaces = this.allWords.map(word => word.length);
+      spaces = Math.max(...spaces);
+      this.dataMatrix.forEach((row, index) => {
+        results += `Document ${index + 1}:\n`;
+        results += `INDICE | ${String("TÉRMINO").padStart(spaces, ' ')} |   TF   |   IDF  | TF-IDF\n`;
+        row.forEach((element, i) => {
+          if (element[0].length > 0) {
+            results += `${String(element[0][0]).padStart(6, ' ')} | ${String(element[1]).padStart(spaces, ' ')} | ${this.tfMatrix[index][i].toFixed(4)} | ${this.idfMatrix[i].toFixed(4)} | ${this.normalizeMatrix[index][i].toFixed(4)}\n`;
+          }
+        });
+        results += '\n';
+      });
 
-    // Crear un blob con el contenido de la matriz de similitud
-    const blob = new Blob([results], { type: 'text/plain' });
+      results += `Similarity between documents:\n`;
+      for (let i = 0; i < this.similarityBetweenDocuments.length; i++) {
+        for (let j = 0; j < this.similarityBetweenDocuments[i].length; j++) {
+          results += `Document ${i + 1} and Document ${j + i + 2}: ${this.similarityBetweenDocuments[i][j].toFixed(4)}\n`;
+        }
+      }
+      
 
-    // Crear un enlace temporal para descargar el archivo
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = 'result.txt';
+      const blob = new Blob([results], { type: 'text/plain' });
 
-    // Simular un clic en el enlace para iniciar la descarga
-    link.click();
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = 'result.txt';
 
-    // Liberar el objeto URL después de la descarga
-    URL.revokeObjectURL(link.href);
-    this.downloading = false;
-    this.calculateLengthCheck();
+      link.click();
 
-  }
+      URL.revokeObjectURL(link.href);
+      this.downloading = false;
+      this.calculateLengthCheck();
+
+    }
   }
 };
 </script>

@@ -7,7 +7,7 @@ will be handled in the parent component according to the file type.
 <template>
   <label class="text-reader">
     <h3>{{ fileReaderTitle }}</h3>
-    <input type="file" @change="loadTextFromFile">
+    <input type="file" @change="loadTextFromFile" ref="fileInput">
   </label>
 </template>
 
@@ -21,6 +21,16 @@ export default {
     fileType: {
       type: String,
       default: 'documents' // It can be 'documents', 'stopwords' or 'substitution'.
+    },
+    fileResetFlag: {
+      type: Boolean,
+      default: false
+    }
+  },
+  watch: {
+    fileResetFlag() {
+      console.log('Resetting file input');
+      this.$refs.fileInput.value = '';
     }
   },
   methods: {

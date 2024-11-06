@@ -1,53 +1,64 @@
+<!-- MatrixDisplay.vue -->
 <template>
-  <div class="display-matrix">
-    <h1>Display Matrix</h1>
-    <!-- Display the matrix here -->
-    <p>{{ dataMatrix }}</p>
-     
+  <div :class="['content-container', { 'wide-container': displayMatrix }]">
+    <button @click="toggleDisplay">Mostrar / Ocultar Matriz</button>
+    
+    <div v-if="display" class="matrix-container">
+      <table>
+        <thead>
+          <tr>
+            <!-- Celda vacía para el encabezado de la primera columna (filas de documentos) -->
+            <th></th>
+            <!-- Crear encabezados basados en el array `columnHeaders` -->
+            <th v-for="(header, index) in this.words" :key="`header-${index}`">
+              {{ header }}
+            </th>
+          </tr>
+        </thead>
+        
+        <tbody>
+          <!-- Crear las filas de la matriz -->
+          <tr v-for="(row, rowIndex) in matrix" :key="`row-${rowIndex}`">
+            <!-- Etiqueta de fila -->
+            <th>{{ `Document ${rowIndex + 1}` }}</th>
+            <!-- Celdas de datos -->
+            <td v-for="(cell, colIndex) in row" :key="`cell-${rowIndex}-${colIndex}`">
+              {{ cell }}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 </template>
 
+
 <script>
 export default {
-  // name: 'DisplayMatrix',
   props: {
-    dataMatrix: {
+    matrixName: {
+      type: String,
+      required: true
+    },
+    matrix: {
       type: Array,
       required: true
     },
-    documentTermMatrix: {
-      type: Array,
-      required: true
-    },
-    dfMatrix: {
-      type: Array,
-      required: true
-    },
-    tfMatrix: {
-      type: Array,
-      required: true
-    },
-    idfMatrix: {
-      type: Array,
-      required: true
-    },
-    lengthVector: {
-      type: Array,
-      required: true
-    },
-    normalizeMatrix: {
-      type: Array,
-      required: true
-    },
-    allWords: {
+    words : {
       type: Array,
       required: true
     }
   },
   data() {
     return {
-      // Your component data goes here
+      display: false // Controla la visibilidad de la matriz
     };
+  },
+  methods: {
+    toggleDisplay() {
+      console.log('Toggling display');
+      this.display = !this.display;
+    }
   }
 };
 </script>
