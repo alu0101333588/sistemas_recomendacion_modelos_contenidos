@@ -123,7 +123,7 @@ export default {
           // Calculate the total number of times the word appears in the document
           // let totalTimesAppeared = wordCount.reduce((a, b) => a + b);
           // Store the word count, the indexes of the words in the document and the word itself in the data matrix
-          rowDataMatrix.push([wordCount, wordIndexes, this.allWords[i]]);
+          rowDataMatrix.push([wordIndexes, this.allWords[i]]);
           // Prepare the row to be stored in the documentTermMatrix
           row = wordCount;
         }
@@ -221,15 +221,6 @@ export default {
   },
   printResults() {
     let results = "";
-    results += "Document Term-Matrix: \n";
-    // if (!this.documentTermMatrix.length > 0 || !this.dfMatrix.length > 0 || !this.tfMatrix.length > 0 || !this.idfMatrix.length > 0 || !this.lengthVector.length > 0 || !this.normaliceMatrix.length > 0) {
-    //   console.log('No se han calculado las matrices');
-    //   return;
-    // }
-    
-    results += "             ";
-    results += this.allWords.join(' | ');
-    results += "\n";
     // this.documentTermMatrix.forEach((row, index) => {
     //   const formattedRow = row.map((elemento, i) => 
     //     String(elemento).padStart(this.allWords[i].length, ' ')  // Alinea cada número según el ancho de la palabra correspondiente
@@ -241,13 +232,28 @@ export default {
     //   }
     // });
     console.log('DataMAtrix: ', this.dataMatrix);
-    this.documentTermMatrix.forEach((row, index) => {
+    // NEEDED TO PRINT: INDICE | TÉRMINO | TF | IDF | TF-IDF
+    this.dataMatrix.forEach((row, index) => {
       results += `Document ${index + 1}:\n`;
       results += `INDICE | TÉRMINO | TF | IDF | TF-IDF\n`;
+      // | ${this.tfMatrix[index][i] * this.idfMatrix[i]}\n
       row.forEach((element, i) => {
-        results += `${this.dataMatrix[i][0]} | ${this.allWords[i]} | ${this.tfMatrix[index][i]} | ${this.idfMatrix[i]} | ${this.tfMatrix[index][i] * this.idfMatrix[i]}\n`;
+        if (element[0].length > 0) {
+          element[0].forEach((position) => {
+            results += ` ${position} | ${element[1]} | ${this.tfMatrix[index][i]} | ${this.idfMatrix[i]} | ${this.tfMatrix[index][i] * this.idfMatrix[i]}\n`;
+          });
+        }
       });
+      results += '\n';
     });
+
+    // this.documentTermMatrix.forEach((row, index) => {
+      // results += `Document ${index + 1}:\n`;
+      // results += `INDICE | TÉRMINO | TF | IDF | TF-IDF\n`;
+      // row.forEach((element, i) => {
+        // results += `${this.dataMatrix[i][0]} | ${this.allWords[i]} | ${this.tfMatrix[index][i]} | ${this.idfMatrix[i]} | ${this.tfMatrix[index][i] * this.idfMatrix[i]}\n`;
+      // });
+    // });
 
     // Crear un blob con el contenido de la matriz de similitud
     const blob = new Blob([results], { type: 'text/plain' });
