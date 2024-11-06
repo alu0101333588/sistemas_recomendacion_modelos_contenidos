@@ -10,7 +10,6 @@
   }
   
   .content-container {
-    display: flex;
     flex-direction: column;
     justify-content: flex-start;
     align-items: center;
@@ -20,12 +19,13 @@
     background-color: rgba(255, 255, 255, 0.8);
     border-radius: 10px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    width: 95%; /* Ancho predeterminado */
-    transition: width 0.3s ease; /* Transición suave */
+    max-width: 90%; /* Ancho máximo para evitar desbordamientos */
+    /* width: 100%; */
   }
   
+  
   .wide-container {
-    width: 1000px; /* Ancho mayor cuando se muestra la matriz */
+    width: 90%; /* Ancho mayor cuando se muestra la matriz */
   }
   
   .content-container > * {
