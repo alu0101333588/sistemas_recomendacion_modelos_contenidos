@@ -5,12 +5,9 @@
   <div class="display-results">
     <h1>Display Results</h1>
     <button @click="$emit('resetApp')">Reset</button>
-    <button @click="calculateDocumentTermMatrix">Calcular matriz término-documento</button>
-    <button @click="calculateDF">Calcular DF</button>
-    <button @click="calculateTF">Calcular TF</button>
-    <button @click="calculateIDF">Calcular IDF</button>
-    <button @click="calculateLength">Calcular longitud</button>
-    <button @click="calculateNormaliceVector">Calcular vector normalizado</button>
+    <button @click="executeAlgorithm">Realizar calculos</button>
+    <button @click="printResults">Imprimir resultados</button>
+    <!-- <DisplayMatrix v-if="displayMatrixFlag" :dataMatrix="dataMatrix" :documentTermMatrix="documentTermMatrix" :dfMatrix="dfMatrix" :tfMatrix="tfMatrix" :idfMatrix="idfMatrix" :lengthVector="lengthVector" :normalizeMatrix="normalizeMatrix" /> -->
   </div>
 </template>
 
@@ -19,7 +16,11 @@ import { separateDocuments } from '@/functions/formatDocument';
 import { stopWords } from '@/functions/formatDocument';
 import { formatDocument } from '@/functions/formatDocument';
 import { lemmatize } from '@/functions/formatDocument';
+// import  DisplayMatrix  from  '@/components/DisplayMatrix';
 export default {
+  // components: {
+  //   DisplayMatrix
+  // },
   data() {
     return { documentsLists: [],
     documentTermMatrix: [],
@@ -29,6 +30,8 @@ export default {
     tfMatrix: [],
     idfMatrix: [],
     lengthVector: [],
+    normalizeMatrix: [],
+    displayMatrixFlag: false
     };
   },
   props: {
@@ -85,6 +88,15 @@ export default {
       // Step 3 (apply the lemmatization ...): ...
       this.documentsLists = this.lemmatize(this.documentsLists, this.substitutionFileContent);
       console.log('Documents list after lemmatization: ', this.documentsLists);
+      this.calculateDocumentTermMatrix();
+      this.calculateDF();
+      this.calculateTF();
+      this.calculateIDF();
+      this.calculateLength();
+      this.calculateNormalizeMatrix();
+      this.displayMatrixFlag = true;
+      console.log('Algorithm executed');
+      //this.printResults();
     },
     stopWords,
     formatDocument,
@@ -114,9 +126,9 @@ export default {
         // Store the indexes of the words in the document
         let wordIndexes = this.documentsLists[j].map((word, index) => word === this.allWords[i] ? index : -1).filter(index => index !== -1);
         // Calculate the total number of times the word appears in the document
-        let totalTimesAppeared = wordCount.reduce((a, b) => a + b);
+        // let totalTimesAppeared = wordCount.reduce((a, b) => a + b);
         // Store the word count, the indexes of the words in the document and the word itself in the data matrix
-        rowDataMatrix.push([totalTimesAppeared, wordIndexes, this.allWords[i]]);
+        rowDataMatrix.push([wordCount, wordIndexes, this.allWords[i]]);
         // Prepare the row to be stored in the documentTermMatrix
         row = wordCount;
       }
@@ -124,6 +136,7 @@ export default {
       this.documentTermMatrix.push(row);
     }
     console.log('Matriz término-documento: ', this.documentTermMatrix);
+    console.log('Tamaño matriz: ', this.documentTermMatrix.length);
     console.log('Data matrix: ', this.dataMatrix);
   },
 
@@ -170,7 +183,6 @@ export default {
 
     console.log('TF Matrix: ', tf);
     this.tfMatrix = tf;
-
   },
   calculateIDF() {
     let idf = [];
@@ -194,20 +206,69 @@ export default {
       length.push(Math.sqrt(sum));
     }
     console.log('Length: ', length);
-    this.lengthVector = length;
-    
+    this.lengthVector = length;    
   },
-  calculateNormaliceVector() {
-    let normaliceVector = [];
+  calculateNormalizeMatrix() {
+    let normalizeVector = [];
     for (let j = 0; j < this.documentTermMatrix.length; j++) {
       let row = [];
       for (let i = 0; i < this.allWords.length; i++) {
         console.log('TF: ', this.tfMatrix[j][i], 'Length: ', this.lengthVector[i]);
         row.push(this.tfMatrix[j][i] / this.lengthVector[i]);
       }
-      normaliceVector.push(row);
+      normalizeVector.push(row);
     }
-    console.log('Normalice Vector: ', normaliceVector);
+    console.log('Normalice Vector: ', normalizeVector);
+    this.normalizeMatrix = normalizeVector;
+
+  },
+  printResults() {
+    let results = "";
+    results += "Matriz término-documento: \n";
+    // if (!this.documentTermMatrix.length > 0 || !this.dfMatrix.length > 0 || !this.tfMatrix.length > 0 || !this.idfMatrix.length > 0 || !this.lengthVector.length > 0 || !this.normaliceMatrix.length > 0) {
+    //   console.log('No se han calculado las matrices');
+    //   return;
+    // }
+    results += "\t";
+    results += this.allWords.join(' | ');
+    results += "\n";
+    // this.dataMatrix.map(row => row.map(cell => results += cell.join(' | ') + '\n'));
+    // results += this.documentTermMatrix.map(row => row.join(' | ')).join('\n');
+    console.log('Tamaño matriz: ', this.documentTermMatrix.length);
+    this.documentTermMatrix.forEach((row, index) => {
+      results += `Documento ${index + 1}: ${row.join(' | ')}\n`;
+    });
+    results += "\n\n";
+    console.log(results);
+    results += "DF: \n";
+    results += this.dfMatrix.join(' | ');
+    results += "\n\n";
+    results += "TF: \n";
+    results += this.tfMatrix.map(row => row.join(' | ')).join('\n');
+    results += "\n\n";
+    results += "IDF: \n";
+    results += this.idfMatrix.join(' | ');
+    results += "\n\n";
+    results += "Length: \n";
+    results += this.lengthVector.join(' | ');
+    results += "\n\n";
+    results += "Normalice Matrix: \n";
+    results += this.normaliceMatrix.map(row => row.join(' | ')).join('\n');
+    console.log(results);
+    // Crear un blob con el contenido de la matriz de similitud
+    const blob = new Blob([results], { type: 'text/plain' });
+
+    // Crear un enlace temporal para descargar el archivo
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'result.txt';
+
+    // Simular un clic en el enlace para iniciar la descarga
+    link.click();
+
+    // Liberar el objeto URL después de la descarga
+    URL.revokeObjectURL(link.href);
+    this.downloading = false;
   }
   }
 };

@@ -13,13 +13,14 @@ This is the main component that handles the file upload and the algorithm execut
       <FileReader fileType="stopwords" fileReaderTitle="Introduce el fichero con las stopwords" @stopwordsLoad="stopwordsLoadHandler" />
       <FileReader fileType="substitution" fileReaderTitle="Introduce el fichero con las sustituciones para la lematización" @substitutionLoad="substitutionLoadHandler" />
       <!-- Button to execute the algorithm and call the DisplayResults component. Needs to get all the files first. -->
-      <button @click="executeAlgorithm">Execute algorithm</button>
+      <button @click="validateDocuments">Validate documents</button>
       <p v-if="filesFlag">Upload all files before executing the algorithm!</p>
     </div>
     <!-- Section for the results. When it's mounted in the DOM, a change in the files content will trigger the algorithm. -->
     <div v-if="showResults && documentsFileContent && stopwordsFileContent && substitutionFileContent">
       <DisplayResults :documentsFileContent="documentsFileContent" :stopwordsFileContent="stopwordsFileContent" :substitutionFileContent="substitutionFileContent" @resetApp="resetHandler" />
     </div>
+
   </div>
 </template>
 
@@ -54,7 +55,7 @@ export default {
       this.substitutionFileContent = content;
       // console.log("[LOAD]: Received event Substitution file content: ", content);
     },
-    executeAlgorithm() {
+    validateDocuments() {
       if (!this.documentsFileContent || !this.stopwordsFileContent || !this.substitutionFileContent) {
         console.error("[ERROR]: All files must be uploaded before executing the algorithm");
         this.filesFlag = true;
