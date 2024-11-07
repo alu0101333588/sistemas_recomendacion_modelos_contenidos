@@ -6,10 +6,9 @@
     <h1>Display Results</h1>
     <button @click="reset">Reset</button>
     <button @click="printResults">Imprimir resultados</button>
-    <MatrixDisplay v-if="documentTermMatrix.length > 0" matrixName="Document-Term Matrix" :matrix="documentTermMatrix" :words="allWords"/>
-    <MatrixDisplay v-if="tfMatrix.length > 0" matrixName="TF Matrix" :matrix="tfMatrix" :words="allWords" />
-    <MatrixDisplay v-if="normalizeMatrix.length > 0" matrixName="Normalized Matrix" :matrix="normalizeMatrix" :words="allWords" />
-    <!-- <DisplayMatrix v-if="displayMatrixFlag" :dataMatrix="dataMatrix" :documentTermMatrix="documentTermMatrix" :dfMatrix="dfMatrix" :tfMatrix="tfMatrix" :idfMatrix="idfMatrix" :lengthVector="lengthVector" :normalizeMatrix="normalizeMatrix" /> -->
+    <MatrixDisplay v-if="documentTermMatrix.length > 0" matrixName="Matriz Término-documento" :matrix="documentTermMatrix" :words="allWords"/>
+    <MatrixDisplay v-if="tfMatrix.length > 0" matrixName="Matriz TF " :matrix="tfMatrix" :words="allWords" />
+    <MatrixDisplay v-if="normalizeMatrix.length > 0" matrixName="Matriz Normalizada" :matrix="normalizeMatrix" :words="allWords" />
   </div>
 </template>
 
@@ -93,7 +92,6 @@ export default {
       this.similarityBetweenDocuments = [];
     },
     executeAlgorithm() {
-      console.log('Executing algorithm');
       // Step 0 (build list of documents): ...
       this.documentsLists = this.separateDocuments(this.documentsFileContent);
       // Step 1 (upper to lower, remove punctuation, numbers and whitespaces): ...
@@ -183,7 +181,6 @@ export default {
         }
         tf.push(tfRow); 
       }
-      console.log('TF Matrix: ', tf);
       this.tfMatrix = tf;
     },
 
@@ -195,7 +192,6 @@ export default {
         let idfValue = Math.log10(value);
         idf.push(idfValue);
       }
-      console.log('IDF Matrix: ', idf);
       this.idfMatrix = idf;
     },
 
@@ -232,7 +228,6 @@ export default {
         }
         length.push(Math.sqrt(sum));
       }
-      console.log('Length check: ', length);
     },
     similarityfunction() {
       let similarity = [];
@@ -248,7 +243,6 @@ export default {
         similarity.push(row);
       }
       this.similarityBetweenDocuments = similarity;
-      console.log('Similarity: ', similarity);
     },
 
     printResults() {
@@ -267,8 +261,8 @@ export default {
       let spaces = this.allWords.map(word => word.length);
       spaces = Math.max(...spaces);
       this.dataMatrix.forEach((row, index) => {
-        results += `Document ${index + 1}:\n`;
-        results += `INDICE | ${String("TÉRMINO").padStart(spaces, ' ')} |   TF   |   IDF  | TF-IDF\n`;
+        results += `Documento ${index + 1}:\n`;
+        results += `ÍNDICE | ${String("TÉRMINO").padStart(spaces, ' ')} |   TF   |   IDF  | TF-IDF\n`;
         row.forEach((element, i) => {
           if (element[0].length > 0) {
             results += `${String(element[0][0]).padStart(6, ' ')} | ${String(element[1]).padStart(spaces, ' ')} | ${this.tfMatrix[index][i].toFixed(4)} | ${this.idfMatrix[i].toFixed(4)} | ${this.normalizeMatrix[index][i].toFixed(4)}\n`;
@@ -277,10 +271,10 @@ export default {
         results += '\n';
       });
 
-      results += `Similarity between documents:\n`;
+      results += `Similaridad coseno entre cada par de documentos:\n`;
       for (let i = 0; i < this.similarityBetweenDocuments.length; i++) {
         for (let j = 0; j < this.similarityBetweenDocuments[i].length; j++) {
-          results += `Document ${i + 1} and Document ${j + i + 2}: ${this.similarityBetweenDocuments[i][j].toFixed(4)}\n`;
+          results += `Documento ${i + 1} y documento ${j + i + 2}: ${this.similarityBetweenDocuments[i][j].toFixed(4)}\n`;
         }
       }
       

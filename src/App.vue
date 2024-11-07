@@ -13,7 +13,7 @@ This is the main component that handles the file upload and the algorithm execut
       <FileReader fileType="stopwords" fileReaderTitle="Introduce el fichero con las stopwords" @stopwordsLoad="stopwordsLoadHandler"  :fileResetFlag="fileResetFlag" />
       <FileReader fileType="substitution" fileReaderTitle="Introduce el fichero con las sustituciones para la lematización" @substitutionLoad="substitutionLoadHandler" :fileResetFlag="fileResetFlag" />
       <!-- Button to execute the algorithm and call the DisplayResults component. Needs to get all the files first. -->
-      <button @click="validateDocuments">Execute Algorithm</button>
+      <button @click="validateDocuments">Ejecutar algoritmo</button>
       <p v-if="missingFilesFlag">Upload all files before executing the algorithm!</p>
     </div>
     <!-- Section for the results. When it's mounted in the DOM, a change in the files content will trigger the algorithm. -->
@@ -46,15 +46,15 @@ export default {
   methods: {
     documentLoadHandler(content) {
       this.documentsFileContent = content;
-      console.log("[LOAD]: Received event Documents file content: ", content);
+      // console.log("[LOAD]: Received event Documents file content: ", content);
     },
     stopwordsLoadHandler(content) {
       this.stopwordsFileContent = content;
-      console.log("[LOAD]: Received event Stopwords file content: ", content);
+      // console.log("[LOAD]: Received event Stopwords file content: ", content);
     },
     substitutionLoadHandler(content) {
       this.substitutionFileContent = content;
-      console.log("[LOAD]: Received event Substitution file content: ", content);
+      // console.log("[LOAD]: Received event Substitution file content: ", content);
     },
     validateDocuments() {
       if (!this.documentsFileContent || !this.stopwordsFileContent || !this.substitutionFileContent) {
