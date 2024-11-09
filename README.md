@@ -192,10 +192,10 @@ Una vez en el navegador web:
 
 
 Una vez se han introducido los tres ficheros necesarios, se debe pulsar el botón "Ejecutar algoritmo" (4). Acto seguido, aparecen una serie de botones con diferentes acciones posibles:
-- Dos botones, "Reset" e "Imprimir resultados" (5), para resetear todo el contenido, es decir, eliminar los ficheros introducidos por el usuario, y para mostrar los resultados en un fichero .txt que se descargará.
-- "Mostrar/Ocultar Matriz Término-documento" (6), para mostrar u ocultar en la página la matriz término-documento.
-- "Mostrar/Ocultar Matriz TF" (7), para mostrar u ocultar en la página la matriz TF.
-- "Mostrar/Ocultar Matriz Normalizada" (8), para mostrar u ocultar en la página la matriz normalizada.
+- Dos botones, "Reset" (5) e "Imprimir resultados" (6), para resetear todo el contenido, es decir, eliminar los ficheros introducidos por el usuario, y para mostrar los resultados en un fichero .txt que se descargará.
+- "Mostrar/Ocultar Matriz Término-documento" (7), para mostrar u ocultar en la página la matriz término-documento.
+- "Mostrar/Ocultar Matriz TF" (8), para mostrar u ocultar en la página la matriz TF.
+- "Mostrar/Ocultar Matriz Normalizada" (9), para mostrar u ocultar en la página la matriz normalizada.
 
 
 
