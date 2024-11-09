@@ -55,7 +55,6 @@ La estructura empleada permite la modularidad del programa, favoreciendo las pos
 
 ### DisplayMatrix
 - La función está diseñada para mostrar los resultados de las diferentes matrices (Término-documento, TF, normalizada).
-
 - La interfaz (*template*): 
   - Se muestra un botón "Mostrar / Ocultar", seguido del nombre de la matriz (`matrixName`), para cambiar la visibilidad de la matriz que se le pasa al componente, alternando el valor de `display`.
   - En el caso de que `display` esté a true:
@@ -72,27 +71,59 @@ La estructura empleada permite la modularidad del programa, favoreciendo las pos
 
      
 ### DisplayResults
-- La función está diseñada para permitir al usuario seleccionar la métrica de similitud, el tipo de predicción y el número de vecinos necesarios para realizar cálculos a partir de una matriz de utilidad.
-
+- Se encarga de gestionar el análisis y visualización de matrices a partir de la información de los ficheros cargados, es decir, para obtener como resultados la matriz término-documento, TF (frecuencia de término) y una matriz normalizada. Este análisis incluye el procesamiento de documentos, stopwords, y términos de sustitución, para finalmente calcular métricas como la similaridad coseno entre documentos.
 - La interfaz (*template*):
-  - Se muestra el título "Selecciona la métrica y el tipo de predicción".
-  - Tipo de Métrica (*selectedMetric*):
-    - Se presenta un menú desplegable de opciones que permite al usuario seleccionar la métrica de similitud (Pearson, Coseno, o Euclidiana) que desea obtener.
-  - Número de vecinos (*neighbors*): 
-    - Un campo de entrada permite al usuario definir el número de vecinos (se establece un mínimo de 1).
-  - Tipo de predicción (*predictionType*):
-    - Un segundo menú desplegable permite elegir entre predicciones simples o basadas en la diferencia con la media.
-  - Visualización de las opciones escogidas:
-    - Se muestra un cuadro de texto con un resumen de las opciones seleccionadas (métrica, número de vecinos y tipo de predicción).
-    - En caso de que no se seleccionen opciones, se muestran valores predeterminados ("Ninguna seleccionada" o "No especificado").
+  - Se muestra el título "Display Results".
+  - Se muestran dos botones:
+    - "Reset": Cuando se activa, se invoca método `reset` para reiniciar los datos y la visualización.
+    - "Imprimir resultados": Cuando se activa, llama al método `printResults` para generar un archivo de texto con los resultados del análisis.
+  - Se hace uso del componente `MatrixDisplay` para mostrar las tres matrices generadas, a partir de los diferentes cálculos:
+    - La matriz término-documento (`documentTermMatrix`),
+    - La matriz de frecuencia de términos (`tfMatrix`),
+    - La matriz normalizada (`normalizeMatrix`).
+  - Cada `MatrixDisplay` solo se renderiza si la matriz respectiva tiene datos (`length > 0`).
+  - Los nombres y encabezados de columnas (`allWords`) se pasan como props.
 - El *script*:
+  - **Props**:
+    - `documentsFileContent`: Almacena el contenido del fichero con los diferentes documentos en cada línea. Es de tipo `String`.
+    - `stopwordsFileContent`: Almacena el contenido del archivo de stopwords. Es de tipo `String`.
+    - `substitutionFileContent`: Almacena el contenido del archivo de términos de sustitución. Es de tipo `String`.
   - **Data**:
-    - *selectedMetric*: Guarda el nombre de la métrica de similitud seleccionada (inicialmente vacía).
-    - *selectedPredictionType*: Guarda el nombre del tipo de predicción seleccionada (inicialmente vacío).
-    - *numNeighbors*: Almacena el número de vecinos introducido por el usuario (inicialmente null).
+    - `documentsLists`: Lista con los diferentes documentos.
+    - `documentTermMatrix`: Matriz de término-documento, con la cantidad de veces que aparece la palabra en el documento.
+    - `dataMatrix`: Matriz que almacena la palabra y su índice.
+    - `allWords`: Almacena todas las palabras presentes en los documentos.
+    - `dfMatrix`: Matriz con la frecuencia del documento (DF) para cada palabra.
+    - `tfMatrix`: Matriz de frecuencia de términos (TF).
+    - `idfMatrix`: Matriz de frecuencias inversas de documentos (IDF).
+    - `lengthVector`: Longitudes vectoriales de cada documento.
+    - `normalizeMatrix`: Matriz normalizada para el cálculo de similaridad.
+    - `similarityBetweenDocuments`: Similaridad coseno entre pares de documentos.
+    - `displayMatrixFlag`: Controla la visibilidad de matrices en el template.
   - **Methods**:
-    - *emitSelection*: El método es llamado cada vez que el usuario cambia una de las opciones (métrica, vecinos, tipo de predicción).
-      - Emite un evento *updateMetrics* con las selecciones actuales (selectedMetric, selectedPredictionType y numNeighbors), lo que permite que el componente padre actualice su configuración de cálculo.
+    - `reset`:
+      - Llama a `resetData` para limpiar todos los datos y reiniciar `displayMatrixFlag`.
+      - Emite un evento `resetApp` para notificar al componente padre.
+    - `resetData`:
+      - Restablece los arrays de datos a sus valores iniciales, limpiando todas las matrices y listas.
+    - `executeAlgorithm`:
+      - Ejecuta paso a paso el procesamiento de documentos, transformándolos y generando las matrices de análisis.
+      - Se encarga de llamar de manera secuencial y ordenada a los métodos necesarios para construir las matrices resultantes necesarias:
+        1. Se invoca a una serie de funciones, ubicadas en `/src/functions/formatDocument.js`, para tratar inicialmente el fichero de documentos de la siguiente forma:
+           - `separateDocuments`: Divide cada línea del archivo (que representa un documento), utilizando saltos de línea (\n), en una posición del array `documents`, es decir, forma un array de arrays, donde cada posición del array es una línea, y cada día a su vez es un array en el que las palabras son las posiciones.
+           - `formatDocument`: Convierte las mayúsculas en minúsculas. Luego, elimina caracteres no alfabéticos (como puntuación y números) y cualquier espacio en blanco. Solo las palabras que contienen letras después de esta limpieza se agregan al documento formateado. Finalmente, la función devuelve un array de documentos, donde cada documento es un array de palabras en minúsculas, sin caracteres especiales ni espacios.
+           - `
+
+
+
+
+
+
+
+        3. 
+        4. calculateDocumentTermMatrix, calculateDF, calculateTF, calculateIDF, calculateLength, calculateNormalizeMatrix, y similarityfunction para cada cálculo.
+
+
 
 ## Ejemplo de uso
 
