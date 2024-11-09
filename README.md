@@ -188,7 +188,7 @@ Una vez en el navegador web:
 - Se debe adjuntar un archivo que contenga las sustituciones para la lematización (3).
 
   
-![EjemploUso](/images/ejemplouso.png)
+![EjemploUso](/images/ejemplo_uso.png)
 
 
 Una vez se han introducido los tres ficheros necesarios, se debe pulsar el botón "Ejecutar algoritmo" (4). Acto seguido, aparecen una serie de botones con diferentes acciones posibles:
@@ -200,5 +200,5 @@ Una vez se han introducido los tres ficheros necesarios, se debe pulsar el botó
 
 
 
-![EjemploUso](/images/ejemplouso2.png)
+![EjemploUso](/images/ejemplo_uso_2.png)
 
