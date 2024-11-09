@@ -112,7 +112,16 @@ La estructura empleada permite la modularidad del programa, favoreciendo las pos
         1. Se invoca a una serie de funciones, ubicadas en `/src/functions/formatDocument.js`, para tratar inicialmente el fichero de documentos de la siguiente forma:
            - `separateDocuments`: Divide cada línea del archivo (que representa un documento), utilizando saltos de línea (\n), en una posición del array `documents`, es decir, forma un array de arrays, donde cada posición del array es una línea, y cada día a su vez es un array en el que las palabras son las posiciones.
            - `formatDocument`: Convierte las mayúsculas en minúsculas. Luego, elimina caracteres no alfabéticos (como puntuación y números) y cualquier espacio en blanco. Solo las palabras que contienen letras después de esta limpieza se agregan al documento formateado. Finalmente, la función devuelve un array de documentos, donde cada documento es un array de palabras en minúsculas, sin caracteres especiales ni espacios.
-           - `
+           - `lemmatize`: Realiza el proceso de lematización del documento, empleando el conjunto de sustituciones `substitutionWords`.
+           - `stopWords`: Elimina las palabras vacías del documento, empleando el fichero `stopWords`.
+
+        2. Se llama a la función `calculateDocumentTermMatrix`, encargada de calcular la Matriz de Términos-Documentos.
+        3. Se invoca a `calculateDF`, para calcular la Frecuencia de Documentos (DF).
+        4. `calculateTF`, para calcular la matriz de Frecuencia de Término (TF).
+        5. `calculateIDF`, para calcular la Frecuencia Inversa de Documentos (IDF).
+        6. `calculateLength`, para calcular la longitud del vector de cada documento.
+        7. `calculateNormalizeMatrix`, para calcular la matriz normalizada.
+        8. `similarityfunction`, para calcular la similitud entre los diferentes documentos.
 
 
 
@@ -120,8 +129,9 @@ La estructura empleada permite la modularidad del programa, favoreciendo las pos
 
 
 
-        3. 
-        4. calculateDocumentTermMatrix, calculateDF, calculateTF, calculateIDF, calculateLength, calculateNormalizeMatrix, y similarityfunction para cada cálculo.
+
+        9. 
+        10. calculateDocumentTermMatrix, calculateDF, calculateTF, calculateIDF, calculateLength, calculateNormalizeMatrix, y similarityfunction para cada cálculo.
 
 
 
