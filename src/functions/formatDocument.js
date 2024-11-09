@@ -1,6 +1,11 @@
 export function separateDocuments(documentFileContent) {
+	documentFileContent = documentFileContent.toString();
+
+  // Divide por saltos de línea (tanto \n como \r\n)
   let documents = documentFileContent.split('\n');
 	documents =  documents.map(document => document.split(' '));
+	// Convert every word to a string of the document
+	documents = documents.map(document => document.map(word => String(word)));
   return documents;
 }
 
@@ -25,22 +30,15 @@ export function formatDocument(documentContent) {
 
 
 export function lemmatize(documentContent, substitutionWords) {
-  console.log(substitutionWords);
-	// documentContent = documentContent.map(word => {
-	// 	word.map(w => {
-	// 		substitutionWords.map(substitution => {
-	// 			if (w === substitution[0]) {
-	// 				w = substitution[1];
-	// 			}
-	// 		});
-	// 	});
-	// });
-	documentContent = documentContent.map(sentence => {
+  documentContent = documentContent.map(sentence => {
     return sentence.map(word => {
-      return substitutionWords[word] || word; // Sustituye si hay un equivalente, sino devuelve la palabra original
+      // Usar Object.prototype.hasOwnProperty.call para evitar conflictos con claves en substitutionWords
+      return Object.prototype.hasOwnProperty.call(substitutionWords, word) 
+        ? substitutionWords[word] 
+        : word;
     });
   });
-	return documentContent;
+  return documentContent;
 }
 
 export function stopWords(documentContent, stopWords) {

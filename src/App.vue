@@ -9,12 +9,12 @@ This is the main component that handles the file upload and the algorithm execut
     <!-- Section for the file readers -->
     <div class="file-readers">
       <h1>Sistemas de recomendación basados en el contenido</h1>
-      <FileReader fileType="documents" fileReaderTitle="Introduce el fichero con los documentos" @documentsLoad="documentLoadHandler" />
-      <FileReader fileType="stopwords" fileReaderTitle="Introduce el fichero con las stopwords" @stopwordsLoad="stopwordsLoadHandler" />
-      <FileReader fileType="substitution" fileReaderTitle="Introduce el fichero con las sustituciones para la lematización" @substitutionLoad="substitutionLoadHandler" />
+      <FileReader fileType="documents" fileReaderTitle="Introduce el fichero con los documentos" @documentsLoad="documentLoadHandler" :fileResetFlag="fileResetFlag" />
+      <FileReader fileType="stopwords" fileReaderTitle="Introduce el fichero con las stopwords" @stopwordsLoad="stopwordsLoadHandler"  :fileResetFlag="fileResetFlag" />
+      <FileReader fileType="substitution" fileReaderTitle="Introduce el fichero con las sustituciones para la lematización" @substitutionLoad="substitutionLoadHandler" :fileResetFlag="fileResetFlag" />
       <!-- Button to execute the algorithm and call the DisplayResults component. Needs to get all the files first. -->
-      <button @click="validateDocuments">Validate documents</button>
-      <p v-if="filesFlag">Upload all files before executing the algorithm!</p>
+      <button @click="validateDocuments">Ejecutar algoritmo</button>
+      <p v-if="missingFilesFlag">Upload all files before executing the algorithm!</p>
     </div>
     <!-- Section for the results. When it's mounted in the DOM, a change in the files content will trigger the algorithm. -->
     <div v-if="showResults && documentsFileContent && stopwordsFileContent && substitutionFileContent">
@@ -36,10 +36,11 @@ export default {
   data() {
     return {
       showResults: false,
-      filesFlag: false,
+      missingFilesFlag: false,
       documentsFileContent: '',
       stopwordsFileContent: '',
-      substitutionFileContent: ''
+      substitutionFileContent: '',
+      fileResetFlag: false, // Flag to reset the FileReader so the user can upload the same file again.
     };
   },
   methods: {
@@ -58,21 +59,28 @@ export default {
     validateDocuments() {
       if (!this.documentsFileContent || !this.stopwordsFileContent || !this.substitutionFileContent) {
         console.error("[ERROR]: All files must be uploaded before executing the algorithm");
-        this.filesFlag = true;
+        // console.log("[EXE]: Execute algorithm with the following files content: ");
+        // console.log("[EXE]: Documents file content: ", this.documentsFileContent);
+        // console.log("[EXE]: Stopwords file content: ", this.stopwordsFileContent);
+        // console.log("[EXE]: Substitution words file content: ", this.substitutionFileContent);
+        this.missingFilesFlag = true;
         return;
       }
       this.showResults = true;
-      this.filesFlag = false;
+      this.missingFilesFlag = false;
       // console.log("[EXE]: Execute algorithm with the following files content: ");
       // console.log("[EXE]: Documents file content: ", this.documentsFileContent);
       // console.log("[EXE]: Stopwords file content: ", this.stopwordsFileContent);
       // console.log("[EXE]: Substitution words file content: ", this.substitutionFileContent);
     },
     resetHandler() {
+      console.log("Launching reset handler");
       this.showResults = false;
       this.documentsFileContent = '';
       this.stopwordsFileContent = '';
       this.substitutionFileContent = '';
+      this.fileResetFlag = !this.fileResetFlag; // Change the flag to reset the FileReader components so
+                                                // the watcher in the FileReader component can reset the input value.
     }
   }
 }
