@@ -54,46 +54,23 @@ La estructura empleada permite la modularidad del programa, favoreciendo las pos
 
 
 ### DisplayMatrix
-- La función está diseñada para mostrar los resultados de los cálculos de las métricas de similitud y predicciones a partir de una matriz de utilidad.
-- Permite al usuario elegir diferentes tipos de cálculos, según la métrica o el tipo de predicción, y descargar la matriz resultante en un archivo de texto.
+- La función está diseñada para mostrar los resultados de las diferentes matrices (Término-documento, TF, normalizada).
 
 - La interfaz (*template*): 
-  - Se muestra el título "Resultados de Cálculo".
-  - En el caso de que se haya cargado un archivo (fileContent), se renderiza dinámicamente un componente basado en la métrica seleccionada (pearson, cosine, euclidean) para calcular la matriz de similitud.
-  - En función del tipo de predicción (simple o meanDifference) se muestra el componente correspondiente para calcular la predicción.
-  - Proporciona un botón para descargar la matriz de similitud en un archivo de texto (.txt), en el caso de que se haya calculado.
-  - Si no hay contenido de archivo disponible, muestra el mensaje "No hay contenido del archivo disponible".
-
+  - Se muestra un botón "Mostrar / Ocultar", seguido del nombre de la matriz (`matrixName`), para cambiar la visibilidad de la matriz que se le pasa al componente, alternando el valor de `display`.
+  - En el caso de que `display` esté a true:
+    - Se renderiza la tabla donde las filas son los documentos y las columnas las palabras.
 - El *script*:
   - En **Props** se definen los datos que se espera recibir desde su componente padre:
-      - *selectedMetric*: La métrica seleccionada en cuestión ("pearson", "cosine" o "euclidean"). Es importante para decidir qué componente de similitud se debe cargar.
-      - *fileContent*: Recibe el contenido del archivo que ha sido cargado, es decir, la matriz de utilidad.
-      - *numNeighbors*: Define el número de vecinos que se van a considerar en el cálculo de predicciones.
-      - *selectedPredictionType*: Especifica el tipo de predicción que se debe realizar ("simple" o "meanDifference"). Es importante para elegir qué tipo de predicción aplicar a los datos una vez calculada la matriz de similitud.
-
+      - `matrixName`: Nombre de la matriz que se mostrará en el botón de alternar visibilidad. Es tipo `String` y obligatorio.
+      - `matrix`: Contiene los datos de la matriz a mostrar. Es tipo `Array` y obligatorio.
+      - `words`: Contiene los encabezados de las columnas de la matriz, es decir, las palabras que aparecen en la primera fila de la tabla.
   - En **Data** se encuentran las variables internas del componente que se inicializan cuando éste se crea.
-      - *utilityMatrix*: Es un array vacío, se inicializará al cargar el componente. Contendrá la matriz de utilidad.
-      - *similarityMatrix*: Es un array vacío, se inicializará al cargar el componente. Contendrá la matriz de similitud.
-      - *prediction*: Es un array vacío, se inicializará al cargar el componente. Contendrá los resultados de las predicciones calculadas para los valores faltantes en *utilityMatrix*.
-      - *pares*: Es un array vacío, se inicializará al cargar el componente. Contendrá contiene información detallada sobre los pares de usuarios y los vecinos seleccionados, es decir, la similitud entre ellos y otros datos de apoyo para calcular las predicciones (como el sumatorio de similitudes).
-  
-  -  En **Computed** se establecen las propiedades computadas, es decir, aquellos valores derivados que dependen de otras propiedades y que se actualizan automáticamente cuando cambian sus dependencias.
-      - *selectedMetric*: El switch permite, en función del valor de selectedMetric, seleccionar el componente correspondiente:
-        - Si es 'pearson', devuelve el componente 'PearsonCorrelation'.
-        - Si es 'cosine', devuelve el componente 'CosineDistance'.
-        - Si es 'euclidean', devuelve el componente 'EuclideanDistance'.
-        - Si no coincide con ninguno de estos valores, devuelve null, lo que significa que no se selecciona ningún componente de los contemplados.
-  - En **Components**: Se define una lista de componentes importados que el componente actual utilizará en la plantilla.
+      - `display`: Se encarga de controlar si la matriz debe ser visible o no. Inicialmente está en false, por lo que la tabla no se muestra hasta que el usuario haga clic en el botón. Es de tipo `Boolean`.
   - En **Methods**: Se definen los métodos del componente.
-      - *updatePrediction*: El método se encarga de actualizar dos propiedades internas (*this.pares* y *this.prediction*) con los datos proporcionados como parámetros (*predictionMatrix* y *pares*). Además, emite un evento llamado *predictionUpdated* al componente padre, enviando los valores actualizados.
-      - *downloadSimilarityMatrix*: Genera y descarga un archivo de texto (.txt) que contiene información sobre:
-        - La métrica de similitud seleccionada.
-        - El número de vecinos.
-        - El tipo de predicción.
-        - La matriz de similitud.
-        - La matriz de utilidad con predicciones.
-        - El conjunto de pares de usuarios con detalles sobre las predicciones calculadas.
+      - `toggleDisplay`: Alterna el valor de `display` entre `true` y `false`, permitiendo que la matriz se muestre o se oculte al hacer clic en el botón.
 
+     
 ### DisplayResults
 - La función está diseñada para permitir al usuario seleccionar la métrica de similitud, el tipo de predicción y el número de vecinos necesarios para realizar cálculos a partir de una matriz de utilidad.
 
